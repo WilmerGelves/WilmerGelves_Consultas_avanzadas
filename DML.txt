@@ -1,0 +1,221 @@
+
+
+-- Inserciones para la tabla 'clientes'
+INSERT INTO clientes (num_identidad, nombre, email) 
+VALUES 
+('123456789012', 'Juan Pérez', 'juan.perez@email.com'),
+('234567890123', 'María López', 'maria.lopez@email.com'),
+('345678901234', 'Carlos García', 'carlos.garcia@email.com'),
+('456789012345', 'Ana Rodríguez', 'ana.rodriguez@email.com'),
+('567890123456', 'Luis Martínez', 'luis.martinez@email.com'),
+('678901234567', 'Sofía Hernández', 'sofia.hernandez@email.com'),
+('789012345678', 'David Sánchez', 'david.sanchez@email.com'),
+('890123456789', 'Carmen Fernández', 'carmen.fernandez@email.com'),
+('901234567890', 'Pedro García', 'pedro.garcia@email.com'),
+('012345678901', 'Laura González', 'laura.gonzalez@email.com'),
+('123456789013', 'Antonio Pérez', 'antonio.perez@email.com'),
+('234567890124', 'Beatriz López', 'beatriz.lopez@email.com'),
+('345678901235', 'José García', 'jose.garcia@email.com'),
+('456789012346', 'Julia Rodríguez', 'julia.rodriguez@email.com'),
+('567890123457', 'Martín Martínez', 'martin.martinez@email.com'),
+('678901234567', 'Pedro Torres', 'pedro.torres@email.com'),
+('789012345678', 'Sara Morales', 'sara.morales@email.com'),
+('890123456789', 'Raúl Gómez', 'raul.gomez@email.com');
+
+-- Inserciones para la tabla 'telefonos'
+INSERT INTO telefonos (id_cliente, numero_de_telefono) 
+VALUES 
+(1, '012-3456789'),
+(2, '023-4567890'),
+(3, '034-5678901'),
+(4, '045-6789012'),
+(5, '056-7890123'),
+(6, '067-8901234'),
+(7, '078-9012345'),
+(8, '089-0123456'),
+(9, '090-1234567'),
+(10, '101-2345678'),
+(11, '112-3456789'),
+(12, '123-4567890'),
+(13, '134-5678901'),
+(14, '145-6789012'),
+(15, '156-7890123');
+
+-- Inserciones para la tabla 'paises'
+INSERT INTO paises (pais) 
+VALUES 
+('Argentina'),
+('Brasil'),
+('Colombia'),
+('México'),
+('Chile');
+
+-- Inserciones para la tabla 'departamentos'
+INSERT INTO departamentos (departamento, id_pais) 
+VALUES 
+('Buenos Aires', 1),
+('São Paulo', 2),
+('Rio de Janeiro', 2),
+('Antioquia', 3),
+('Jalisco', 4);
+
+-- Inserciones para la tabla 'ciudades'
+INSERT INTO ciudades (ciudad, codigo_postal, id_departamento) 
+VALUES 
+('Buenos Aires', '1000', 1),
+('São Paulo', '2000', 2),
+('Rio de Janeiro', '3000', 3),
+('Medellín', '4000', 4),
+('Guadalajara', '5000', 5);
+
+-- Inserciones para la tabla 'ubicacion_cliente'
+INSERT INTO ubicacion_cliente (id_cliente, direccion, id_ciudad, id_departamento, id_pais) 
+VALUES 
+(1, 'Av. Siempre Viva 123', 1, 1, 1),
+(2, 'Calle Falsa 456', 2, 2, 2),
+(3, 'Rua das Flores 789', 3, 3, 2),
+(4, 'Av. Central 101', 4, 4, 4),
+(5, 'Calle Real 202', 5, 5, 5),
+(6, 'Paseo de la Reforma 303', 1, 1, 1),
+(7, 'Avenida del Libertador 404', 2, 2, 2),
+(8, 'Calle San Martín 505', 3, 3, 2),
+(9, 'Calle del Prado 606', 4, 4, 4),
+(10, 'Avenida Juárez 707', 5, 5, 5),
+(11, 'Av. de los Insurgentes 808', 1, 1, 1),
+(12, 'Calle 70 909', 2, 2, 2),
+(13, 'Avenida Paulista 1010', 3, 3, 2),
+(14, 'Carrera 10 1111', 4, 4, 4),
+(15, 'Calle 5 de Febrero 1212', 5, 5, 5);
+
+-- Inserciones para la tabla 'puestos'
+INSERT INTO puestos (puesto, salario) 
+VALUES 
+('Vendedor', 1500.00),
+('Gerente', 3000.00),
+('Supervisor', 2500.00),
+('Encargado', 2200.00),
+('Asistente', 1800.00);
+
+-- Inserciones para la tabla 'empleados'
+INSERT INTO empleados (nombre, id_puesto, fecha_contratacion, id_jefe) 
+VALUES 
+('Juan Pérez', 1, '2023-01-01', NULL),
+('María López', 2, '2022-02-15', 1),
+('Carlos García', 3, '2021-03-10', 2),
+('Ana Rodríguez', 4, '2023-05-20', 3),
+('Luis Martínez', 1, '2023-06-01', 1),
+('Sofía Hernández', 2, '2022-07-30', 2),
+('David Sánchez', 1, '2023-08-15', 1),
+('Carmen Fernández', 4, '2021-09-22', 3),
+('Pedro García', 1, '2023-04-10', 1),
+('Laura González', 2, '2022-11-05', 2),
+('Antonio Pérez', 3, '2023-01-30', 2),
+('Beatriz López', 4, '2023-07-12', 3),
+('José García', 1, '2023-08-01', 1),
+('Julia Rodríguez', 2, '2023-10-20', 2),
+('Martín Martínez', 3, '2021-12-15', 3),
+('Ricardo Díaz', 1, '2024-11-01', NULL);
+
+-- Inserciones para la tabla 'proveedores'
+INSERT INTO proveedores (nombre) 
+VALUES 
+('Proveedor A'),
+('Proveedor B'),
+('Proveedor C'),
+('Proveedor D'),
+('Proveedor E');
+
+-- Inserciones para la tabla 'contacto_proveedores'
+INSERT INTO contacto_proveedores (id_proveedor, telefono, direccion, id_ciudad, email) 
+VALUES 
+(1, '011-12345678', 'Calle Falsa 100', 1, 'contactoA@proveedor.com'),
+(2, '022-23456789', 'Rua das Flores 200', 2, 'contactoB@proveedor.com'),
+(3, '033-34567890', 'Calle Real 300', 3, 'contactoC@proveedor.com'),
+(4, '044-45678901', 'Av. Central 400', 4, 'contactoD@proveedor.com'),
+(5, '055-56789012', 'Avenida Juárez 500', 5, 'contactoE@proveedor.com');
+
+-- Inserciones para la tabla 'empleados_proveedores'
+INSERT INTO empleados_proveedores (id_empleado, id_proveedor) 
+VALUES 
+(1, 1), (1, 2), (2, 2), (3, 3), (3, 4),
+(4, 1), (5, 5), (6, 2), (7, 4), (8, 3),
+(9, 5), (10, 1), (11, 2), (12, 3), (13, 4);
+
+-- Inserciones para la tabla 'categorias'
+INSERT INTO categorias (categoria) 
+VALUES 
+('Electrónica'),
+('Ropa'),
+('Alimentos'),
+('Hogar'),
+('Salud');
+
+-- Inserciones para la tabla 'tipos_de_productos'
+INSERT INTO tipos_de_productos (tipo, id_categoria, descripcion) 
+VALUES 
+('Smartphone', 1, 'Teléfono móvil inteligente'),
+('Laptop', 1, 'Computadora portátil'),
+('Camiseta', 2, 'Prenda de vestir de algodón'),
+('Cereal', 3, 'Alimento envasado para desayuno'),
+('Silla', 4, 'Mueble para sentarse');
+
+-- Inserciones para la tabla 'productos'
+INSERT INTO productos (nombre, precio, id_proveedor, tipo_id, stock) 
+VALUES 
+('iPhone 15', 1000.00, 1, 1, 50),
+('MacBook Pro', 2000.00, 1, 2, 30),
+('Camiseta Nike', 25.00, 2, 3, 100),
+('Kellogg\'s Cornflakes', 3.00, 3, 4, 200),
+('Silla de Oficina', 120.00, 4, 5, 75),
+('Samsung Galaxy S23', 900.00, 1, 1, 40),
+('Dell XPS 13', 1800.00, 2, 2, 20),
+('Pantalón Levi\'s', 50.00, 2, 3, 60),
+('Cereal Cheerios', 4.00, 3, 4, 150),
+('Silla Gamer', 150.00, 4, 5, 30),
+('Huawei P40', 700.00, 1, 1, 80),
+('HP Spectre x360', 1600.00, 2, 2, 25),
+('Sudadera Adidas', 45.00, 2, 3, 90),
+('Avena Quaker', 5.00, 3, 4, 180),
+('Mesa de Comedor', 200.00, 4, 5, 50),
+('iPad Air', 600.00, 1, 1, 60),
+('AirPods Pro', 250.00, 1, 1, 100);
+
+-- Inserciones para la tabla 'pedidos'
+INSERT INTO pedidos (id_cliente, fecha, id_empleado, total) 
+VALUES 
+(1, '2024-01-01', 1, 1500.00),
+(2, '2024-01-02', 2, 2000.00),
+(3, '2024-01-03', 3, 1000.00),
+(4, '2024-01-04', 4, 2500.00),
+(5, '2024-01-05', 5, 3000.00),
+(6, '2024-01-06', 6, 2200.00),
+(7, '2024-01-07', 7, 1800.00),
+(8, '2024-01-08', 8, 2000.00),
+(9, '2024-01-09', 9, 1500.00),
+(10, '2024-01-10', 10, 2400.00),
+(11, '2024-01-11', 11, 2200.00),
+(12, '2024-01-12', 12, 2700.00),
+(13, '2024-01-13', 13, 2500.00),
+(14, '2024-01-14', 14, 2000.00),
+(15, '2024-01-15', 15, 2800.00),
+(1, '2024-10-10', 1, 1200.00), 
+(1, '2024-10-15', 2, 1500.00);
+
+-- Inserciones para la tabla 'detalles_pedido'
+INSERT INTO detalles_pedido (id_pedido, id_producto, cantidad, precio) 
+VALUES 
+(1, 1, 1, 1000.00),
+(2, 2, 1, 2000.00),
+(3, 3, 2, 25.00),
+(4, 4, 1, 120.00),
+(5, 5, 2, 60.00),
+(6, 6, 3, 180.00),
+(7, 7, 1, 150.00),
+(8, 8, 1, 50.00),
+(9, 9, 2, 100.00),
+(10, 10, 1, 200.00),
+(11, 11, 2, 100.00),
+(12, 12, 1, 45.00),
+(13, 13, 3, 15.00),
+(14, 14, 2, 50.00),
+(15, 15, 1, 200.00);

@@ -1,0 +1,148 @@
+
+CREATE DATABASE IF NOT EXISTS consultas_avanzadas;
+USE consultas_avanzadas;
+
+-- Tabla Clientes
+CREATE TABLE clientes (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    num_identidad VARCHAR(12) NOT NULL,
+    nombre VARCHAR(100) NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE
+);
+-- Tabla números de teléfono
+CREATE TABLE telefonos(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    id_cliente INT NOT NULL,
+    numero_de_telefono VARCHAR(15) NOT NULL,
+    FOREIGN KEY(id_cliente) REFERENCES clientes(id)
+);
+
+-- Tabla paises
+CREATE TABLE paises(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    pais VARCHAR(50) NOT NULL UNIQUE
+);
+
+-- Tabla departamentos
+CREATE TABLE departamentos(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    departamento VARCHAR(50) NOT NULL,
+   	id_pais INT NOT NULL,
+    FOREIGN KEY(id_pais) REFERENCES paises(id)
+);
+-- Tabla ciudad
+CREATE TABLE ciudades(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    ciudad VARCHAR(50) NOT NULL,
+    codigo_postal VARCHAR(20) NOT NULL,
+    id_departamento INT NOT NULL,
+    FOREIGN KEY(id_departamento) REFERENCES departamentos(id)
+);
+
+
+-- Tabla UbicacionCliente
+CREATE TABLE ubicacion_cliente(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_cliente INT,
+    direccion VARCHAR(255),
+    id_ciudad INT,
+    id_departamento INT,
+    id_pais INT,
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id),
+    FOREIGN KEY (id_ciudad) REFERENCES ciudades(id),
+    FOREIGN KEY (id_departamento) REFERENCES departamentos(id),
+    FOREIGN KEY (id_pais) REFERENCES paises(id)
+);
+
+
+-- Tabla cargos
+CREATE TABLE puestos(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    puesto VARCHAR(100) NOT NULL,
+    salario DECIMAL(10, 2) NOT NULL
+);
+
+-- Tabla Empleados
+CREATE TABLE empleados (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100) NOT NULL,
+    id_puesto INT NOT NULL,
+    fecha_contratacion DATE NOT NULL,
+    id_jefe INT,
+    FOREIGN KEY (id_puesto) REFERENCES puestos(id),
+    FOREIGN KEY (id_jefe) REFERENCES empleados(id)
+);
+
+-- Tabla Proveedores
+CREATE TABLE proveedores(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100)
+);
+-- Tabla Contactos proveedores
+CREATE TABLE contacto_proveedores(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_proveedor INT NOT NULL,
+	telefono VARCHAR(20) NOT NULL,
+    direccion VARCHAR(255) NOT NULL,
+    id_ciudad INT NOT NULL,
+    email VARCHAR(100) NOT NULL UNIQUE,
+    FOREIGN KEY (id_proveedor) REFERENCES proveedores(id),
+    FOREIGN KEY (id_ciudad) REFERENCES ciudades(id)
+);
+-- Tabla empleados_proveedores
+CREATE TABLE empleados_proveedores(
+	id_empleado INT NOT NULL,
+    id_proveedor INT NOT NULL,
+    PRIMARY KEY(id_empleado,id_proveedor),
+    FOREIGN KEY(id_empleado) REFERENCES empleados(id),
+    FOREIGN KEY(id_proveedor) REFERENCES proveedores(id)
+);
+
+-- Tabla Categoría
+CREATE TABLE categorias(
+	id INT PRIMARY KEY AUTO_INCREMENT,
+    categoria VARCHAR(50) NOT NULL
+);
+
+-- Tabla TiposProductos
+CREATE TABLE tipos_de_productos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    tipo VARCHAR(100) NOT NULL,
+    id_categoria INT NOT NULL,
+    descripcion TEXT NOT NULL,
+    FOREIGN KEY (id_categoria) REFERENCES categorias(id)
+);
+
+-- Tabla Productos
+CREATE TABLE productos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    nombre VARCHAR(100)NOT NULL,
+    precio DECIMAL(10, 2) NOT NULL,
+    id_proveedor INT NOT NULL,
+    tipo_id INT NOT NULL,
+    stock INT NOT NULL,
+    FOREIGN KEY (id_proveedor) REFERENCES proveedores(id),
+    FOREIGN KEY (tipo_id) REFERENCES tipos_de_productos(id)
+);
+
+-- Tabla pedidos
+CREATE TABLE pedidos (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_cliente INT,
+    fecha DATE,
+    id_empleado INT,
+    total DECIMAL(10,2),
+    FOREIGN KEY (id_cliente) REFERENCES clientes(id),
+    FOREIGN KEY (id_empleado) REFERENCES empleados(id)
+);
+
+-- Tabla DetallesPedido
+CREATE TABLE detalles_pedido(
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    id_pedido INT,
+    id_producto INT,
+    cantidad INT,
+    precio DECIMAL(10, 2),
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id),
+    FOREIGN KEY (id_producto) REFERENCES productos(id)
+);
