@@ -719,10 +719,37 @@ END $$
 
 DELIMITER ;
 
--- 3.Un trigger que registre en HistorialPedidos cada actualización en Pedidos.
+-- 3.Un trigger que registre en HistorialPedidos cada actualizacdión en Pedidos.
 -- 4.Crear un trigger que actualice el inventario al registrar un pedido.
+DELIMITER $$
+
+CREATE TRIGGER ActualizarInventario
+AFTER INSERT ON detalles_pedido
+FOR EACH ROW
+BEGIN
+    
+    UPDATE productos
+    SET stock = stock - NEW.cantidad
+    WHERE id = NEW.id_producto;
+END $$
+
+DELIMITER ;
 -- 5.Un trigger que evite actualizaciones de precio a menos de $1.
--- 6.Crear un trigger que registre la fecha de creación de un pedido en HistorialPedidos.
+DELIMITER $$
+
+CREATE TRIGGER EvitarPrecioMenorA1
+BEFORE UPDATE ON productos
+FOR EACH ROW
+BEGIN
+    
+    IF NEW.precio < 1 THEN
+        
+        SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT = 'El precio no puede ser menor a $1';
+    END IF;
+END $$
+
+DELIMITER ;
+-- 6.Crear un trigger que registre la fecha de creación de un pedido en HistorialPedidos.	
 -- 7.Un trigger que mantenga el precio total de cada pedido en Pedidos.
 -- 8.Crear un trigger para validar que UbicacionCliente no esté vacío al crear un cliente.
 -- 9.Un trigger que registre en LogActividades cada modificación en Proveedores.
@@ -772,30 +799,129 @@ JOIN
 	-- i. Crear la función CalcularEdad que reciba la fecha de nacimiento y calcule la edad.
 	-- ii. Consultar todos los clientes y mostrar solo aquellos que sean mayores de 18 años.
 	
+DELIMITER $$
+
+CREATE FUNCTION CalcularEdad(fecha_nacimiento DATE) 
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE edad INT;
+    SET edad = TIMESTAMPDIFF(YEAR, fecha_nacimiento, CURDATE());
+    IF MONTH(fecha_nacimiento) > MONTH(CURDATE()) OR (MONTH(fecha_nacimiento) = MONTH(CURDATE()) AND DAY(fecha_nacimiento) > DAY(CURDATE())) THEN
+        SET edad = edad - 1;
+    END IF;
+    RETURN edad;
+END $$
+
+DELIMITER ;
+
+SELECT num_identidad, nombre, email, fecha_de_nacimineto
+FROM clientes
+WHERE CalcularEdad(fecha_de_nacimineto) > 18;
+
 -- 3.Crear una función que calcule el precio final de un producto aplicando un impuesto del 15% y luego mostrar una lista de productos con el precio final incluido.
 	-- i.Crear la función CalcularImpuesto que reciba el precio del producto y aplique el impuesto.
 	-- ii. Mostrar el nombre del producto, el precio original y el precio final con impuesto.
 	
+DELIMITER $$
+
+CREATE FUNCTION CalcularImpuesto(precio DECIMAL(10,2)) 
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE precio_final DECIMAL(10,2);
+    SET precio_final = precio * 1.15;
+    RETURN precio_final;
+END $$
+
+DELIMITER ;
+
+SELECT p.nombre, p.precio, CalcularImpuesto(p.precio) AS precio_con_impuesto
+FROM productos p;
+
 -- 4. Crear una función que calcule el total de los pedidos de un cliente y usarla para mostrar los clientes con total de pedidos mayor a $1000.
 	-- i.Crear la función TotalPedidosCliente que reciba el ID de un cliente y calcule el total de 	todos sus pedidos.
 	-- ii.Realizar una consulta que muestre el nombre del cliente y su total de pedidos, y filtrar clientes con un total mayor a $1000.
-	
+
 -- 5. Crear una función que calcule el salario anual de un empleado y usarla para listar todos los empleados con un salario anual mayor a $50,000.
 	-- i.Crear la función SalarioAnual que reciba el salario mensual y lo multiplique por 12.
 	-- ii. Realizar una consulta que muestre el nombre del empleado y su salario anual, filtrando empleados con salario mayor a $50,000.
-	
+DELIMITER $$
+
+CREATE FUNCTION SalarioAnual(salario DECIMAL(10,2)) 
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    RETURN salario * 12;
+END $$
+
+DELIMITER ;
+
+SELECT e.nombre, SalarioAnual(p.salario) AS salario_anual
+FROM empleados e
+JOIN puestos p ON e.id_puesto = p.id
+WHERE SalarioAnual(p.salario) > 50000;
 -- 6. Crear una función que calcule la bonificación de un empleado (10% de su salario) y mostrar el salario ajustado de cada empleado.
 	-- i.Crear una función Bonificacion que reciba el salario y calcule el 10%.
 	-- ii.Realizar una consulta que muestre el salario ajustado (salario + bonificación).
-	
+DELIMITER $$
+
+CREATE FUNCTION Bonificacion(salario DECIMAL(10,2)) 
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    RETURN salario * 0.10;
+END $$
+
+DELIMITER ;
+
+SELECT e.nombre, p.salario, (p.salario + Bonificacion(p.salario)) AS Salario_con_Bonificacion
+FROM empleados e
+JOIN puestos p ON e.id_puesto = p.id;
+
 -- 7. Crear una función que calcule los días desde el último pedido de un cliente y mostrar clientes que hayan hecho un pedido en los últimos 30 días.
 	-- i.Crear la función DiasDesdeUltimoPedido que reciba el ID de un cliente y calcule los días desde su último pedido.
 	-- ii. Realizar una consulta que muestre solo a los clientes con pedidos en los últimos 30 días.
-	
+DELIMITER $$
+
+CREATE FUNCTION DiasDesdeUltimoPedido(id_cliente INT) 
+RETURNS INT
+DETERMINISTIC
+BEGIN
+    DECLARE dias INT;
+    SELECT DATEDIFF(CURDATE(), MAX(p.fecha)) INTO dias
+    FROM pedidos p
+    WHERE p.id_cliente = id_cliente;
+    RETURN dias;
+END $$
+
+DELIMITER ;
+
+SELECT c.nombre, DiasDesdeUltimoPedido(c.id) AS Dias_transcurridos
+FROM clientes c
+WHERE DiasDesdeUltimoPedido(c.id) <= 30;
+
 -- 8. Crear una función que calcule el total en inventario (cantidad x precio) de cada producto y listar productos con inventario superior a $500.
 	-- i. Crear la función TotalInventarioProducto que multiplique cantidad y precio de un producto.
 	-- ii. Realizar una consulta que muestre el nombre del producto y su total en inventario, filtrando los productos con inventario superior a $500.
-	
+DELIMITER $$
+
+CREATE FUNCTION TotalInventarioProducto(id_producto INT) 
+RETURNS DECIMAL(10,2)
+DETERMINISTIC
+BEGIN
+    DECLARE total DECIMAL(10,2);
+    SELECT p.stock * p.precio INTO total
+    FROM productos p
+    WHERE p.id = id_producto;
+    RETURN total;
+END $$
+
+DELIMITER ;
+
+SELECT p.nombre, TotalInventarioProducto(p.id) AS total_inventario
+FROM productos p
+WHERE TotalInventarioProducto(p.id) > 500;
 -- 9. Crear un trigger y una tabla para mantener un historial de precios de productos. Cada vez que el precio de un producto cambia, el trigger debe guardar el ID del producto, el precio antiguo, el nuevo precio y la fecha de cambio.
 	-- i.Crear la tabla HistorialPrecios.
     -- ii.Crear el trigger RegistroCambioPrecio en la tabla Productos para registrar los cambios de precio.
@@ -803,16 +929,58 @@ JOIN
 -- 10.Crear un procedimiento almacenado que genere un reporte de ventas mensual para cada empleado. El procedimiento debe recibir como parámetros el mes y el año, y devolver una lista de empleados con el total de ventas que gestionaron en ese periodo.
 	-- i. Crear el procedimiento ReporteVentasMensuales.
 	-- ii.Usar una subconsulta que agrupe las ventas por empleado y que filtre por el mes y el año.
-	
+DELIMITER $$
+
+CREATE PROCEDURE ReporteVentasMensuales(IN mes INT, IN anio INT)
+BEGIN
+    SELECT e.nombre, SUM(dp.cantidad * dp.precio) AS total_ventas
+    FROM empleados e
+    JOIN pedidos p ON e.id = p.id_empleado
+    JOIN detalles_pedido dp ON p.id = dp.id_pedido
+    WHERE MONTH(p.fecha) = mes AND YEAR(p.fecha) = anio
+    GROUP BY e.id;
+END $$
+
+DELIMITER ;
+
+CALL ReporteVentasMensuales(1, 2024);
 -- 11. Realizar una consulta compleja que devuelva el producto más vendido para cada proveedor, mostrando el nombre del proveedor, el nombre del producto y la cantidad vendida.
 
 	-- i. Utilizar una subconsulta para calcular la cantidad total de ventas por producto.
 	-- ii.Filtrar en la consulta principal para obtener el producto más vendido de cada proveedor.
-	
+SELECT p.nombre AS Producto, pr.nombre AS Proveedor, MAX(sub.total_ventas) AS Cantidad_vendida
+FROM proveedores pr
+JOIN productos p ON pr.id = p.id_proveedor
+JOIN (
+    SELECT dp.id_producto, SUM(dp.cantidad) AS total_ventas
+    FROM detalles_pedido dp
+    GROUP BY dp.id_producto
+) sub ON p.id = sub.id_producto
+GROUP BY pr.id, p.id;		
+
 -- 12. Crear una función que calcule el estado de stock de un producto y lo clasifique en “Alto”, “Medio” o “Bajo” en función de su cantidad. Usar esta función en una consulta para listar todos los productos y su estado de stock.
 	-- i.Crear la función EstadoStock que reciba la cantidad de un producto.
 	-- ii.En la consulta principal, utilizar la función para clasificar el estado de stock de cada producto.
-	
+DELIMITER $$
+
+CREATE FUNCTION EstadoStock(cantidad INT)
+RETURNS VARCHAR(10)
+DETERMINISTIC
+BEGIN
+    IF cantidad >= 100 THEN
+        RETURN 'Alto';
+    ELSEIF cantidad BETWEEN 50 AND 99 THEN
+        RETURN 'Medio';
+    ELSE
+        RETURN 'Bajo';
+    END IF;
+END $$
+
+DELIMITER ;
+
+
+SELECT p.nombre, p.stock, EstadoStock(p.stock) AS estado_stock
+FROM productos p;
 -- 13. Crear un trigger que, al insertar un nuevo pedido, disminuya automáticamente la cantidad en stock del producto. El trigger debe también prevenir que se inserte el pedido si el stock es insuficiente.
 	-- i. Crear el trigger ActualizarInventario en la tabla DetallesPedido.
 	-- ii.Controlar que no se permita la inserción si la cantidad es mayor que el stock disponible.
@@ -820,7 +988,22 @@ JOIN
 -- 14. Crear un procedimiento almacenado que genere un informe de clientes inactivos (aquellos que no han realizado pedidos en los últimos 6 meses).
 	-- i. Crear el procedimiento ClientesInactivos.
 	-- ii.Filtrar clientes que no tengan pedidos recientes usando una subconsulta.
-	
+DELIMITER $$
+
+CREATE PROCEDURE ClientesInactivos()
+BEGIN
+    SELECT c.nombre, c.email
+    FROM clientes c
+    WHERE NOT EXISTS (
+        SELECT 1
+        FROM pedidos p
+        WHERE p.id_cliente = c.id AND p.fecha > DATE_SUB(CURDATE(), INTERVAL 6 MONTH)
+    );
+END $$
+
+DELIMITER ;
+
+CALL ClientesInactivos();
 
 ```
 
